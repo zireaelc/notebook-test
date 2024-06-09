@@ -7,6 +7,10 @@ public class Controller {
     private Scanner scanner = new Scanner(System.in);
     private List<Record> records;
 
+    public Controller() {
+        records = storage.loadRecords();
+    }
+
     private void printAllRecords(){
         for (Record record : records) {
             System.out.println(record.toString());
@@ -23,17 +27,15 @@ public class Controller {
 
     public void run(){
         while(true){
-            records = storage.loadRecords();
             System.out.println("Введите команду: ");
             String command = scanner.nextLine().trim();
-            if (command.equals("#read")) {
-                printAllRecords();
-            } else if (command.equals("#write")) {
-                addRecord();
-            } else if (command.equals("#exit")) {
-                return;
-            } else {
-                System.out.println("Неверная команда. Попробуйте снова");
+            switch (command) {
+                case "#read" -> printAllRecords();
+                case "#write" -> addRecord();
+                case "#exit" -> {
+                    return;
+                }
+                default -> System.out.println("Неверная команда. Попробуйте снова");
             }
         }
     }
