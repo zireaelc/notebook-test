@@ -30,8 +30,8 @@ public class FileRecordStorage implements RecordStorage{
     }
 
     @Override
-    public List<Record> loadRecords(){
-        List<Record> recordList = new ArrayList<>();
+    public List<RecordModel> loadRecords(){
+        List<RecordModel> recordList = new ArrayList<>();
         try {
             File file = new File(FILE_NAME);
             if (!file.exists()) {
@@ -45,7 +45,7 @@ public class FileRecordStorage implements RecordStorage{
                 String[] notes = decryptedLine.split(" ", 2);
                 LocalDate date = LocalDate.parse(notes[0]);
                 String note = notes[1];
-                recordList.add(new Record(note, date));
+                recordList.add(new RecordModel(note, date));
             }
             bufferedReader.close();
         }
@@ -56,7 +56,7 @@ public class FileRecordStorage implements RecordStorage{
     }
 
     @Override
-    public void saveRecords(Record record){
+    public void saveRecords(RecordModel record){
         try{
             File file = new File(FILE_NAME);
             if (!file.exists()) {

@@ -1,10 +1,10 @@
 import java.time.LocalDate;
 
-public class Record {
+public class RecordModel {
     private String note;
     private LocalDate date;
 
-    public Record(String note, LocalDate date){
+    public RecordModel(String note, LocalDate date){
         this.note = note;
         this.date = date;
     }
