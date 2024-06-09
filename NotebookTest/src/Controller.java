@@ -1,8 +1,4 @@
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class Controller {
     private final Scanner scanner = new Scanner(System.in);
@@ -16,10 +12,18 @@ public class Controller {
                 case "#read" -> logic.printAllRecords();
                 case "#write" -> logic.addRecord();
                 case "#find" -> logic.findRecordsByDate();
+                case "#statistics" -> logic.statistics();
                 case "#exit" -> {
                     return;
                 }
-                default -> System.out.println("Неверная команда. Попробуйте снова");
+                case "#help" -> {
+                    System.out.println("#read - Получить список всех записей");
+                    System.out.println("#write - Создать новую запись");
+                    System.out.println("#find - Найти записи за конкретный день");
+                    System.out.println("#statistics - Получить сведения по использованию записной книжки");
+                    System.out.println("#exit - Выход из программы");
+                }
+                default -> System.out.println("Неверная команда. Для получения списка команд введите #help");
             }
         }
     }
