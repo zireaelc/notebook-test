@@ -1,10 +1,33 @@
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import javax.crypto.SecretKey;
 
 public class FileRecordStorage implements RecordStorage{
     private static final String FILE_NAME = "file.txt";
+    private static final String KEY_FILE = "key.txt";
+    private SecretKey secretKey;
+
+    public FileRecordStorage() {
+        try {
+            File keyFile = new File(KEY_FILE);
+            if (!keyFile.exists()) {
+                this.secretKey = Encryption.generateKey();
+                try (FileWriter keyWriter = new FileWriter(KEY_FILE)) {
+                    keyWriter.write(Base64.getEncoder().encodeToString(secretKey.getEncoded()));
+                }
+            } else {
+                try (BufferedReader keyReader = new BufferedReader(new FileReader(keyFile))) {
+                    String keyString = keyReader.readLine();
+                    this.secretKey = Encryption.getKeyFromString(keyString);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при генерации или загрузке ключа: " + e.getMessage(), e);
+        }
+    }
 
     @Override
     public List<Record> loadRecords(){
@@ -18,14 +41,15 @@ public class FileRecordStorage implements RecordStorage{
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                String[] notes = line.split(" ", 2);
+                String decryptedLine = Encryption.decrypt(line, secretKey);
+                String[] notes = decryptedLine.split(" ", 2);
                 LocalDate date = LocalDate.parse(notes[0]);
                 String note = notes[1];
                 recordList.add(new Record(note, date));
             }
             bufferedReader.close();
         }
-        catch (IOException e){
+        catch (Exception e){
             System.err.println("Ошибка при чтении файла: " + e.getMessage());
         }
         return recordList;
@@ -40,11 +64,13 @@ public class FileRecordStorage implements RecordStorage{
             }
             FileWriter fileWriter = new FileWriter(file, true);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write(record.getDate().toString() + " " + record.getNote());
+            String data = record.getDate().toString() + " " + record.getNote();
+            String encryptedData = Encryption.encrypt(data, secretKey);
+            bufferedWriter.write(encryptedData);
             bufferedWriter.newLine();
             bufferedWriter.close();
         }
-        catch (IOException e){
+        catch (Exception e){
             System.err.println("Ошибка при записи в файл: " + e.getMessage());
         }
     }
